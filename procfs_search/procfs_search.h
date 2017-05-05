@@ -22,12 +22,15 @@ int get_addr_from_procfs(FILE* fp, long* pstartaddr, long* pendaddr){
     return 0;
 }
  
-int search_from(long startaddr, long endaddr, int backoffset, int addprintlen){
-    unsigned char* paddr;
-    char target_array[] = {0x04, 0x08};
-    int i;
-    unsigned char* printpoint;
- 
+int mem_search(long startaddr, long endaddr){
+    char target_array[] = {0x20, 0x57, 0x7a, 0x00};
+	int forward_offset = 0;
+	int backward_offset = 4;
+	
+	unsigned char* paddr;
+	unsigned char* printpoint;
+	int i;    
+
     for( paddr = (unsigned char*)startaddr; paddr < (unsigned char*)endaddr; paddr++){
         for (i = 0; i < sizeof(target_array); i++){
             if( *(paddr+i) != target_array[i] )
@@ -35,7 +38,7 @@ int search_from(long startaddr, long endaddr, int backoffset, int addprintlen){
         }
  
         if( i == sizeof(target_array) ){
-            printpoint = paddr - backoffset;
+            printpoint = paddr - forward_offset;
             printf("%010p : ", printpoint);
  
             while(printpoint < paddr){
@@ -48,7 +51,7 @@ int search_from(long startaddr, long endaddr, int backoffset, int addprintlen){
             }
             printf("] ");
  
-            for( i = 0; i < addprintlen; i++){
+            for( i = 0; i < backward_offset; i++){
                 printf("%02x ", *(printpoint++));
             }
  
@@ -77,7 +80,7 @@ int search_from_int(long startaddr, long endaddr){
     }
 }
  
-int who_made_the_coughing(){
+int procfs_search(){
     FILE* fp;
     long startaddr = 0x8048000;
     long endaddr = 0xFFFFFFFF;
@@ -88,13 +91,12 @@ int who_made_the_coughing(){
     }
     
     while( get_addr_from_procfs(fp, &startaddr, &endaddr) != -1 ){
-        search_from(startaddr, endaddr, 2, 4);
- 
+        mem_search(startaddr, endaddr); 
+
         /*search_from_int(startaddr, endaddr);
         search_from_int(startaddr+1, endaddr);
         search_from_int(startaddr+2, endaddr);
         search_from_int(startaddr+3, endaddr);*/
- 
     }
     
     fclose(fp);
