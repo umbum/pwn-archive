@@ -23,13 +23,13 @@ int get_addr_from_procfs(FILE* fp, long* pstartaddr, long* pendaddr){
 }
  
 int mem_search(long startaddr, long endaddr){
-    char target_array[] = {0x20, 0x57, 0x7a, 0x00};
-	int forward_offset = 0;
-	int backward_offset = 4;
-	
-	unsigned char* paddr;
-	unsigned char* printpoint;
-	int i;    
+    unsigned char target_array[] = {0x20, 0x57, 0x7a, 0x00};
+    int forward_offset = 0;
+    int backward_offset = 4;
+    
+    unsigned char* paddr;
+    unsigned char* printpoint;
+    int i;
 
     for( paddr = (unsigned char*)startaddr; paddr < (unsigned char*)endaddr; paddr++){
         for (i = 0; i < sizeof(target_array); i++){
