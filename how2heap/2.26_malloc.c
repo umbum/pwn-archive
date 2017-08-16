@@ -660,6 +660,8 @@ errout:
         malloc_printerr (check_action, errstr, chunk2mem (p), av);
         return;
     }
+    
+    /*****MINSIZE check*****/
     /* We know that each chunk is at least MINSIZE bytes in size or a
        multiple of MALLOC_ALIGNMENT.  */
     if (__glibc_unlikely (size < MINSIZE || !aligned_OK (size)))
@@ -708,6 +710,8 @@ errout:
             /* We might not have a lock at this point and concurrent modifications
                of system_mem might have let to a false positive.  Redo the test
                after getting the lock.  */
+               
+            /***** next size check (fast) *****/
             if (have_lock
                     || ({ assert (locked == 0);
                           __libc_lock_lock (av->mutex);
@@ -737,6 +741,7 @@ errout:
         unsigned int old_idx = ~0u;
         do
         {
+            /***** double free check *****/
             /* Check that the top of the bin is not the record we are going to add
                (i.e., double free).  */
             if (__builtin_expect (old == p, 0))
@@ -794,7 +799,8 @@ errout:
             errstr = "double free or corruption (!prev)";
             goto errout;
         }
-
+        
+        /***** next size check (normal) *****/
         nextsize = chunksize(nextchunk);
         if (__builtin_expect (chunksize_nomask (nextchunk) <= 2 * SIZE_SZ, 0)
                 || __builtin_expect (nextsize >= av->system_mem, 0))
@@ -824,6 +830,7 @@ errout:
             } else
                 clear_inuse_bit_at_offset(nextchunk, 0);
 
+            /***** unsorted bin link *****/
             /*
             Place the chunk in unsorted chunk list. Chunks are
             not placed into regular bins until after they have
